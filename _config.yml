@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: CS 315 - Computer Architecture
+title: CS 315 - Computer Architecture - Spring 2023
 author: Phil Peterson
 email: phpeterson@usfca.edu
 baseurl: ""  # the subpath of your site, e.g. /blog
@@ -40,6 +40,9 @@ collections:
     output: true
     permalink: /:collection/:name
   assignments:
+    output: true
+    permalink: /:collection/:name
+  guides:
     output: true
     permalink: /:collection/:name
 

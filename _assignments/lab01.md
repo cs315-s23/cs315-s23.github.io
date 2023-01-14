@@ -1,7 +1,7 @@
 ---
 layout: assignment
-due: 2024-01-30 23:59:59 -0800
-url: https://classroom.github.com/a/9QO9ha0G
+due: 2023-01-30 23:59:59 -0800
+github_url: https://classroom.github.com/a/9QO9ha0G
 ---
 ## Requirements
 We will implement a base conversion tool called nt. It converts numbers expressed in bases 2, 10, and 16 into the other two bases. Examples:
