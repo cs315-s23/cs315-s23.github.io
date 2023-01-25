@@ -4,22 +4,22 @@ due: 2023-01-30 23:59:59 -0800
 github_url: https://classroom.github.com/a/9QO9ha0G
 ---
 ## Requirements
-We will implement a base conversion tool called nt. It converts numbers expressed in bases 2, 10, and 16 into the other two bases. Examples:
+We will implement a base conversion tool called lab01. It converts numbers expressed in bases 2, 10, and 16 into the other two bases. Examples:
 
-    $ ./nt 10 -o 2
+    $ ./lab01 10 -o 2
     0b1010
-    $ ./nt 0xFF -o 10
+    $ ./lab01 0xFF -o 10
     255
-    $ ./nt 0b11011110101011011011111011101111 -o 16
+    $ ./lab01 0b11011110101011011011111011101111 -o 16
     0xDEADBEEF
-    $ ./nt 0b11111111111111111111111111111111 -o 10
+    $ ./lab01 0b11111111111111111111111111111111 -o 10
     4294967295
-    $ ./nt 0x0000000B -o 10
+    $ ./lab01 0x0000000B -o 10
     11
-    $ ./nt 0b123 -o 2
+    $ ./lab01 0b123 -o 2
     Bad input
 
-You must implement the base conversions yourself, without using C library `printf()`,  `scanf()`, or `atoi()`
+You must implement the base conversions yourself, without using C library `printf(%d)`, `printf("%x")`,  `scanf()`, or `atoi()`
 
 ## Given
 We will review processing command line arguments in C
