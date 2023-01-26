@@ -33,7 +33,7 @@ Pseudocode for `uint32_t string_to_int(char *str)`
         calculate the value of that place by multiplying the integer * placeval
         add the value to the retval
         update to placeval to placeval * base
-        return the return value
+    return the return value
 
 Pseudocode for `void int_to_string(uint32_t value, char *str, int base)`
 
@@ -44,7 +44,7 @@ Pseudocode for `void int_to_string(uint32_t value, char *str, int base)`
         calculate the character value of rem
         append the character value to the buffer
         value = quot
-        copy buffer into str in reverse order
+    copy buffer into str in reverse order
 
 ## Rubric
 
