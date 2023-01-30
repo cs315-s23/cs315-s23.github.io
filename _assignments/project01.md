@@ -6,7 +6,7 @@ github_url: https://classroom.github.com/a/CwDgv83Y
 
 ## Requirements
 
-You will install an emulated RISC-V environment on your laptop using [these instructions](https://github.com/usfca-cs-tools/docs/blob/main/risc-v-setup.md)
+You will install an emulated RISC-V environment on your laptop using [these instructions](https://github.com/usfca-cs-tools/docs/blob/main/risc-v-setup-git.md)
 
 ## Rubric
 
