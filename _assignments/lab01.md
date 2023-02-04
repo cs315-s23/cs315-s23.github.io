@@ -4,7 +4,7 @@ due: 2023-01-30 23:59:59 -0800
 github_url: https://classroom.github.com/a/9QO9ha0G
 ---
 ## Requirements
-We will implement a base conversion tool called lab01. It converts numbers expressed in bases 2, 10, and 16 into the other two bases. Examples:
+1. You will implement a base conversion tool called lab01. It converts numbers expressed in bases 2, 10, and 16 into the other two bases. Examples:
 
     $ ./lab01 10 -o 2
     0b1010
@@ -19,7 +19,8 @@ We will implement a base conversion tool called lab01. It converts numbers expre
     $ ./lab01 0b123 -o 2
     Bad input
 
-You must implement the base conversions yourself, without using C library `printf(%d)`, `printf("%x")`,  `scanf()`, or `atoi()`
+1. You must implement the base conversions yourself, without using C library `printf(%d)`, `printf("%x")`,  `scanf()`, or `atoi()`
+1. You must provide a `Makefile` which builds an executable called `lab01`
 
 ## Given
 We will review processing command line arguments in C
