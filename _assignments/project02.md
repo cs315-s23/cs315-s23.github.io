@@ -14,7 +14,7 @@ github_url: https://classroom.github.com/a/r30Znktv
 
 Given a string of upper, lower, and non-alphanumeric characters, transform lowercase letters into uppercase letters.
 
-    $./to_upper FooBar1
+    $ ./to_upper FooBar1
     C: FOOBAR1
     Asm: FOOBAR1
 
@@ -23,7 +23,8 @@ Given a string of upper, lower, and non-alphanumeric characters, transform lower
 Given three signed integer parameters, find the largest by comparing the first two, and then comparing the larger of those with the third. That is, max3_s must be implemented using two calls to `max2_s`.
 
     $ ./max3 2 4 6
-    C: 6Asm: 6
+    C: 6
+    Asm: 6
 
 **find_max_index**
 
@@ -54,6 +55,3 @@ Given the address of an array of unsigned integers, and the length of the array,
 1. 80 points: automated test cases
 1. 5 points: clean repo (no build products) which compiles and links successfully
 1. 15 points: code quality: consistent formatting, no dead or redundant code, no unnecessarily complex code, readable comments
-1. Fixes may be submitted up to one week after grades are posted
-    1. Deductions for code quality and clean repo may be fixed for 100% credit
-    1. Deductions for correctness or incomplete work may be fixed for 50% credit within 1 week of posted canvas scores
