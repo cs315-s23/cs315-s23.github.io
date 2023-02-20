@@ -87,8 +87,8 @@ The starter repo contains C implementations for each of the programs
 ## Rubric
 
 1. 80 points: automated test cases
-1. 5 points: clean repo (no build products) which compiles and links successfully
-1. 15 points: code quality: consistent formatting, no dead or redundant code, no unnecessarily complex code, readable comments
-1. Fixes may be submitted up to one week after grades are posted
-    1. Deductions for code quality and clean repo may be fixed for 100% credit
-    1. Deductions for correctness or incomplete work may be fixed for 50% credit
+1. 20 points: interactive grading questions, including but not limited to
+    1. Design decisions (why did you choose to do it this way?)
+    1. Explanation of your implementation (show me how X works?)
+    1. Problems encountered and debugged
+    1. Clean repo and readable programming style
