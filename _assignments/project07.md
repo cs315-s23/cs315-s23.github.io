@@ -34,7 +34,7 @@ main:
 ```
 This program illustrates the need to Stall the pipeline, since the addi instruction depends on the value loaded by the `lw` instruction. Your Hazard Unit will enable a Stall in the appropriate Pipeline Registers.
 
-**05-jal-fls.s**
+**06-jal-fls.s**
 ```
 main:
     li a0, 2
