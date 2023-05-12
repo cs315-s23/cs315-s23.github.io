@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Project06 Part 1 | CS 315 - Computer Architecture - Spring 2023</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Project06 Part 1" />
+<meta name="author" content="Phil Peterson" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:site_name" content="CS 315 - Computer Architecture - Spring 2023" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-05-12T04:57:54+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Project06 Part 1" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Phil Peterson"},"headline":"Project06 Part 1","dateModified":"2023-05-12T04:57:54+00:00","datePublished":"2023-05-12T04:57:54+00:00","url":"/guides/project06-part-1","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/guides/project06-part-1"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="CS 315 - Computer Architecture - Spring 2023" /><head>
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">  
+</head>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">CS 315 - Computer Architecture - Spring 2023</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/syllabus/">Syllabus</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper"><h1 class="page-heading">Project06 Part 1</h1>
+<p>The project spec for project06 provides high-level requirements. This guide, along with lecture material, will drill down into the details. Using all of this information, you will implement and simulate a single-cycle RISC-V processor in Digital</p>
+
+<h2 id="major-components">Major Components</h2>
+
+<p><img src="/assets/img/project06/major-components.png" alt="major-components" /></p>
+
+<ol>
+  <li>The PC register will hold the address of the instruction we are currently executing</li>
+  <li>The Instruction Memory holds the machine code representation of our test programs , including the unimp marker instruction</li>
+  <li>You will use the hex output from makerom3.py as input into instruction memory</li>
+  <li>The Register File supports reading and writing from RISC-V registers. We will expose the register values as outputs, so they may be used as inputs to other circuits</li>
+  <li>The Arithmetic Logic Unit (ALU) supports addition, subtraction, multiplication, logical shift left, and logical shift right.  We will also use the ALU to computer branch target addresses and memory target addresses.</li>
+  <li>The Extender supports sign-extension of immediate values.</li>
+  <li>Data Memory is a Digital RAM component which supports our simulated stack, storing function parameters and preserved register values, as needed.</li>
+</ol>
+
+<h2 id="pc">PC</h2>
+<ol>
+  <li>We will represent PC using a Digital Register component, in the top level of our processor</li>
+  <li>Digital does not provide a CLR input to its registers, but we can add one as our project grows</li>
+  <li>EN will always be 1 so we can move the PC forward 4 bytes on each CLK cycle</li>
+  <li>As in Project04, you will update the PC with a calculated address for JAL and JALR instructions</li>
+  <li>The D output will address the Instruction Memory to retrieve the instruction word at the PC address</li>
+</ol>
+
+<h2 id="instruction-memory">Instruction Memory</h2>
+
+<ol>
+  <li>Instruction memory will be built out of Digital ROM components, starting with one and expanding to more for each simulated function</li>
+  <li>Each RISC-V machine code instruction is 32 bits, so the ROM will have 32 data bits</li>
+  <li>The number of address bits will vary based on the size of your simulated programs. Recall that with 8 address bits, you can address 2^8 = 256 instructions</li>
+  <li>Similar to Project05, note that the ROM is addressed by 32-bit words, but the PC represents a byte address. You can obtain the word address using a splitter</li>
+  <li>You will use makerom3.py to generate a .hex file which can be loaded into the ROM.</li>
+</ol>
+
+<h2 id="register-file">Register File</h2>
+
+<p><img src="/assets/img/project06/register-file.png" alt="Register File" /></p>
+
+<ol>
+  <li>You will create a circuit which supports reading from two registers and writing to one register in the same clock cycle.</li>
+</ol>
+
+<p><strong>Inputs</strong></p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">ReadReg0</code> (5 bits) selects the register value to output on <code class="language-plaintext highlighter-rouge">RD0</code></li>
+  <li><code class="language-plaintext highlighter-rouge">ReadReg1</code> (5 bits) selects the register value to output on <code class="language-plaintext highlighter-rouge">RD1</code></li>
+  <li><code class="language-plaintext highlighter-rouge">WriteReg</code> (5 bits) selects the destination register to update</li>
+  <li><code class="language-plaintext highlighter-rouge">WriteEn</code> (1 bit) determines whether we will update a register in this clock cycle</li>
+  <li><code class="language-plaintext highlighter-rouge">WriteData</code> (64 bits) contains the value we will write to <code class="language-plaintext highlighter-rouge">WriteReg</code> if <code class="language-plaintext highlighter-rouge">WriteEn</code> is high</li>
+  <li><code class="language-plaintext highlighter-rouge">PC</code> (64 bits) contains the value of the program counter</li>
+  <li><code class="language-plaintext highlighter-rouge">CLK</code> (1 bit) is the clock input from the top-level clock component</li>
+  <li><code class="language-plaintext highlighter-rouge">CLR</code> (1 bit) allows the register values to be set to zero on a clock tick</li>
+</ol>
+
+<p><strong>Outputs</strong></p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">RD0</code> (64 bits) contains the value of the register specified by <code class="language-plaintext highlighter-rouge">ReadReg0</code></li>
+  <li><code class="language-plaintext highlighter-rouge">RD1</code> (64 bits) contains the value of the register specified by <code class="language-plaintext highlighter-rouge">ReadReg1</code></li>
+  <li><code class="language-plaintext highlighter-rouge">x0</code>-<code class="language-plaintext highlighter-rouge">x32</code> (64 bits) are outputs for the 32 registers</li>
+  <li>You should use these as inputs to tunnels which are used to build the dashboard on the top-level circuit.</li>
+  <li>You should also reflect <code class="language-plaintext highlighter-rouge">PC</code> and <code class="language-plaintext highlighter-rouge">PC+4</code> on the dashboard using tunnels, since that will be useful for debugging branch calculation</li>
+</ol>
+
+<h2 id="arithmetic-logic-unit">Arithmetic Logic Unit</h2>
+
+<ol>
+  <li>The ALU is a combinational logic component. It does not hold state like sequential logic components, so it does not need a CLK input.</li>
+  <li>Data processing instructions use addition, subtraction, multiplication, logical shift left, and logical shift right.</li>
+  <li>Load/store memory instructions use addition and subtraction to calculate target memory addresses</li>
+  <li>Branch instructions use addition to calculate the target branch address</li>
+</ol>
+
+<p><strong>Inputs</strong></p>
+<ol>
+  <li>A (64 bits) is the first ALU operand</li>
+  <li>B (64 bits) is the second ALU operand</li>
+  <li>ALUop (3 bits) selects an ALU operation:
+    <ol>
+      <li>0b000: add</li>
+      <li>0b001: sub</li>
+      <li>0b010: mul</li>
+      <li>0b100: sll</li>
+      <li>0b101 srl</li>
+    </ol>
+  </li>
+</ol>
+
+<p><strong>Outputs</strong></p>
+<ol>
+  <li>R (64 bits) is the ALU result</li>
+  <li>If you need your ALU to support more operations, you may need to add more selector bits and connect those to the Control Unit</li>
+</ol>
+
+<h2 id="initial-top-level-circuit">Initial Top-Level Circuit</h2>
+
+<ol>
+  <li>This starter circuit gives you a general idea of how to start.
+    <ol>
+      <li>It can execute some instructions, with manual help from you.</li>
+      <li>In order to play with it, you can put instructions into the ROM, and manually enter the RR0, RR1, and WR inputs to the Register File and ALU.</li>
+      <li>Of course the Control Unit is the big missing piece, which we will discuss separately.</li>
+    </ol>
+  </li>
+  <li>Wire up PC = PC + 4</li>
+  <li>Wire explicit inputs to all components</li>
+  <li>Add tunnels and probes to see register state</li>
+</ol>
+
+<p><img src="/assets/img/project06/top-level-1.png" alt="Top-Level Circuit" /></p>
+
+      </div>
+    </main>
+
+  </body>
+
+</html>

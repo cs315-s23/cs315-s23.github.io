@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Project06 Part 3 | CS 315 - Computer Architecture - Spring 2023</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Project06 Part 3" />
+<meta name="author" content="Phil Peterson" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:site_name" content="CS 315 - Computer Architecture - Spring 2023" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-05-12T04:57:54+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Project06 Part 3" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Phil Peterson"},"headline":"Project06 Part 3","dateModified":"2023-05-12T04:57:54+00:00","datePublished":"2023-05-12T04:57:54+00:00","url":"/guides/project06-part-3","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/guides/project06-part-3"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="CS 315 - Computer Architecture - Spring 2023" /><head>
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">  
+</head>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">CS 315 - Computer Architecture - Spring 2023</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/syllabus/">Syllabus</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper"><h1 class="page-heading">Project06 Part 3</h1>
+<p>This last guide will give an overview of the last two big components that need to be added to complete the processor: conditional branching and data memory. Unlike, Part 1 and Part 2, this guide will just be a high-level overview. More detail was provided during lecture and lab. This guide also provide a suggested way to construct the register dashboard and gives some general debugging tips.</p>
+
+<h2 id="conditional-branching">Conditional Branching</h2>
+
+<p>Unlike JAL and JALR, the conditional branch instructions BEQ, BNE, BLT, and BGE will either update the PC to PC + 4 or the branch target address (BTA). JAL and JALR always update the PC to the BTA. The conditional branches need to determine if the branch will be taken by comparing the two register values designated by RS1 (RD0) and RS2 (RD1). So, we need to do three things:</p>
+
+<ol>
+  <li>Compute BTA. BTA = PC + imm-b, where imm-b is the 64 bit signed extended immediate from the b-type instruction format. This will come from your ImmDecoder.</li>
+  <li>Detemine if the branch will be taken using a comparison. Use can use the Digital comparator for each of the 4 types of comparison.</li>
+  <li>Update the PC based on the result of the comparison.</li>
+</ol>
+
+<p>First you need to figure out where you should compute the BTA and where you should do the comparson. You could do either in the ALU, but not both. Since we already use the ALU to compute the BTA for JAL and JALR it makes sense to use the ALU for the conditional branch BTA computation. This means you need to put the comparisons in a separate unit, called the Branch Unit (BU).
+The Branch Unit will take RD0 and RD1 as input as well as a BUOp control line. The BUOp will determine which comparison should be used, if any. Currently PCsel determines if the PC will be updated with PC + 4 or the BTA. You need to arrange the circuit to conditionally update the PC as a result of the comparison. You have options on how to structure this.</p>
+
+<p>Option 1: Keep PCsel as is and introduce a new MUX whose input is PC + 4 and the BTA with the output connect to the second input of the PCsel MUX. This can be controlled by the output of the Branch Unit, say, PCbr. Note, that PCbr should be 0 (that is pick PC + 4) if the current instruction is not a branch instruction.</p>
+
+<p>Option 2: Replace PCsel with a new name, PCbr. This will be an output from the Branch Unit. You will now make PCsel an input to the Branch Unit. If the current instruction is a conditional branch, then PCbr should be the output of the corresponding comparator. If the current instruction is not a conditional branch, then the value of PCbr should be PCsel. You can introduce a BROp value of NONE to support this case.</p>
+
+<h2 id="data-memory">Data Memory</h2>
+
+<p>We need a way to allow our programs to store and load data, for our programs this will be on the stack, but we could also have a heap if we wanted. We need to support ld/sd, lw/sw and lb/sb. We can use the Digital RAM component (RAM Separated Ports). You can pick the data size with the data bits and the number elements with the address bits. We can support ld/sd easily by using 64 data bits. This will allow you to read (ld) a 64 bit value at the given double word (DW) address on the A (ADDR) input and write (str) a 64 bit value at the address A. Some things to note:</p>
+<ul>
+  <li>The A (ADDR) input will be a DW address. However, the target address calculated by the ALU will be a byte address (all addresses are represented at byte addresses in registers). This means you need to convert the byte addr into a DW addr. You can do this byte dividing the byte addr by 8 or right shifting by 3. You can do the shift and match the addr bits of the RAM with a splitter.</li>
+  <li>For loads, you will need to route the D output of the RAM back to the register file. You can either expand the WDsel MUX or you can introduce a new two input MUX that selects between the ALU Result and RAM based on a new control line (M2R). The output of the M2R MUX can go into the second input of the WDsel MUX.</li>
+  <li>You will need control lines form the InstDecoder: LD, ST, MZS (more below), and M2R or expanded WDsel bits.</li>
+  <li>For lw/sw and lb/sb, we will need to augment the RAM with additional logic in order to read and write smaller sized values from the 64 bit memory. When doing this, you still want to keep the RAM component at the top level of your processor circuit because this is the only way to open up the RAM during simulation to the contents. So you will add load logic after the RAM component and store logic before the RAM component. We will outline lw and sw below and from this you should be able to derive support for lb and sb.</li>
+</ul>
+
+<p><strong>Load Word (lw) for 64-bit RAM</strong></p>
+
+<p>For load we need to read a 32 bit value from the 64 bit value from RAM. First, you will use the ALU to compute the target address just like for ld. This will be a byte address, but for lw it will be 4-byte aligned, that is is will be a byte addres that is a multiple of 4. The splitter described above will convert this byte address into a DW address. Once you have the 64 bit value we need to extract the lower 32 bits or the upper 32 bits. We can do this by splitting the 64 bit value into two 32 bits values 0-31 and 32-63. These two values can be inputs into a MUX that chooses the lower or the upper. The choice comes from the 3rd bit of the byte ADDR. Recall that bits 0 and 1 are considered the byte index of a word. The third bit, bit 2, is word index. So we can use bit 2 (2-2) as the MUX selector input. This result of this MUX is a 32 bit value that must be sign extended to 64 bits. This 64 bit value can be connected to another MUX that selects the appropriate D output based on the data size control line (MSZ). You will need to support selecting the full 64 bits value from RAM for ld, the 32 bit sign extended to 64 bits value for lw, and the 8 bit signed extended to 64 bits value for lb. If you follow the ordering in the RISC-V spec the value are lb (0b00), lw (0b10), and ld (0b11).</p>
+
+<p><strong>Store Word (sw) for 64-bit RAM</strong></p>
+
+<p>Store word is slight more complicated because we need to read the current 64 bit value that olds the 32 bits we want to update. The idea is that we read the current 64 bit value, then modify just the 32 bits as determined by the word index bit (2) from the target address. So, for sw and sb, you need to set the RAM str and ld lines both to 1 so we can read and write RAM in the same clock cycle. So, the store logic will take the current 64 bit value from RAM at ADDR, call it D64cur and the update value from RD1, call it D64in. We need to extra the lower 32 bits (Wnew) from D64in, then combine it with D64cur to create new 64 bit value that will be connected to the Din of the RAM. There are two approaches: you can use splitters and MUXes or you can use shifts and masks. We will descibe the splitter approach.</p>
+
+<p>For the splitter approach, you can extract both 32 bit values from D64cur, call them W0 and W1. Now you can use to mergers to construct Wnew + W1 and W0 + Wnew. This two 64 bit value can be connected to a MUX that is controlled by the word index (bit 2). The result of this MUX goes to a MSZ (memory size) MUX that will select between the sb value, sw value, or the sd value. This will be connected to the RAM Din.</p>
+
+<h2 id="register-dashboard">Register Dashboard</h2>
+
+<p>Here is a proposed register dashboard that uses outputs and maps the register numbers (x0, x1, etc.) with the ABI names (a0, a1, t0, etc.):
+<img src="/assets/img/project06/register-dashboard.png" alt="register-dashboard" /></p>
+
+<h2 id="development-and-debugging-tips">Development and Debugging Tips</h2>
+
+<p>Here are few tips for development and debugging.</p>
+<ol>
+  <li>Develop your circuit and instruction decoder incrementally. Do not try to construct and giant decoder spreadsheet first. This will make it harder to track down problems you may introduce.</li>
+  <li>Paste the .dig tests into to your processor circuit so you can run test directly in Digital and see why a test is failing.</li>
+  <li>Even with (2) you will eventually have to single step a test in order to find out what is going wrong. I suggest doing an objdump of the test code so you can see both the hex instruction words and the assembly language. You can check each instruction one by one to find out which instruction is not executing properly.</li>
+  <li>To help with (3) you can add more probes to your processor circuit to see all the intermediate values on the data path. In this way you should be able to see if the problem is a incorrect control line or incorrect value from a component like ImmDecoder or the ALU.</li>
+</ol>
+
+      </div>
+    </main>
+
+  </body>
+
+</html>
